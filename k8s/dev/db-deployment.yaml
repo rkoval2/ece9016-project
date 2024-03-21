@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database-deployment
+spec:
+  selector:
+    matchLabels:
+      app: DB
+  template:
+    metadata:
+      labels:
+        app: DB
+    spec:
+      containers:
+        - image: postgres
+          name: postgres-container
+          ports:
+            - containerPort: 5432
+          imagePullPolicy: Always
+          env:
+            - name: POSTGRES_PASSWORD
+              value: "secret"
+            - name: POSTGRES_DB
+              value: "mydatabase"
+            - name: POSTGRES_USER
+              value: "myuser"

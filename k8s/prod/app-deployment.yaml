@@ -21,7 +21,31 @@ spec:
         - name: one-page-db
           image: gcr.io/ece9016-417921/one-page-db:latest
           env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: database
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: user
             - name: DATABASE_URL
-              value: postgres://myuser:secret@database-service:5432/mydatabase
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@database-service:5432/$(POSTGRES_DB)
           ports:
             - containerPort: 8080
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: nginx
+                topologyKey: "kubernetes.io/hostname"
+              weight: 100

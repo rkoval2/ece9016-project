@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: database-deployment
 spec:
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: DB
@@ -19,8 +21,26 @@ spec:
           imagePullPolicy: Always
           env:
             - name: POSTGRES_PASSWORD
-              value: "secret"
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: password
             - name: POSTGRES_DB
-              value: "mydatabase"
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: database
             - name: POSTGRES_USER
-              value: "myuser"
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: user
+            - name: PGDATA
+              value: /mnt/postgres/pgdata
+          volumeMounts:
+            - name: postgres-persistent-storage
+              mountPath: /mnt/postgres
+      volumes:
+        - name: postgres-persistent-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim

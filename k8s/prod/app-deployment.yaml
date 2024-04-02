@@ -45,7 +45,11 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             - podAffinityTerm:
                 labelSelector:
-                  matchLabels:
-                    app: nginx
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - nginx
+                        - DB
                 topologyKey: "kubernetes.io/hostname"
               weight: 100
